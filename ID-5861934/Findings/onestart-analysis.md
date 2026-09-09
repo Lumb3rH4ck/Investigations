@@ -167,11 +167,109 @@ Not malware, but warrants MDE alert due to unwanted bundling/hijacking behavior.
 
 ---
 
+## Payload Analysis: UpdaterSetup_134.0.6998.112.exe
+
+### Overview
+The installer downloads this payload from `https://resources.onestartapi.com/UpdaterSetup_134.0.6998.112.exe`. It is a **modified Google Chrome Updater** (Omaha protocol) rebranded as "OneStartUpdater".
+
+### Payload File Info
+
+| Property | Value |
+|----------|-------|
+| Type | PE32+ executable (GUI) x86-64 |
+| Size | 8,025,200 bytes (8 MB) |
+| MD5 | d4b848ac70b590ae1bbd0a6bb89d1eba |
+| SHA256 | d58d35bba208867cc5b4a1b593c981d210178ab6cf480f49dd564f4108342d3e |
+| Sections | 13 |
+| Entropy | 7.09/8.0 |
+| Signed | Yes (DigiCert) |
+
+### Nested Archive Structure
+The payload contains a **7z archive** embedded in its `.rsrc` section, which itself contains another 7z archive (`updater.7z`), which contains:
+
+| File | Size | Description |
+|------|------|-------------|
+| `bin/updater.exe` | 6,589,040 bytes | Inner Chrome updater executable |
+| `bin/uninstall.cmd` | 845 bytes | Uninstall script for OneStartUpdater |
+
+### Inner Updater (updater.exe)
+
+| Property | Value |
+|----------|-------|
+| Type | PE32+ executable (GUI) x86-64 |
+| Size | 6,589,040 bytes |
+| MD5 | 17b0a6ff85e3715fa43fa8b78acbef1a |
+| SHA256 | 6ac1d9573257b52cbd3dbd997372e2270565e94ec8b390d51259e89e98faf2ef |
+| Timestamp | 1727757852 (2024-10-01) |
+
+### Chrome Updater Components (from debug strings)
+The updater is built from Google's Chromium source tree (`chrome/updater/`):
+
+- `activity.cc` / `activity_impl_win.cc` — Activity tracking
+- `app_server.cc` / `app_server_win.cc` — COM server
+- `check_for_updates_task.cc` — Update checking
+- `installer.cc` / `installer_api.cc` — Installation logic
+- `dm_client.cc` / `dm_message.cc` — Device management
+- `policy_fetcher.cc` / `policy_manager.cc` — Policy management
+- `update_service_impl.cc` — Update service
+- `task_scheduler.cc` — Scheduled tasks
+- `uninstall.cc` — Uninstallation
+- `update_usage_stats_task.cc` — Usage statistics
+
+### Payload Network Indicators
+
+| URL | Purpose |
+|-----|---------|
+| `https://updates.onestartapi.com/onestart/service/update2/json` | Omaha update endpoint |
+| `https://event.onestartapi.com` | Analytics |
+| `https://onestartapi.com` | API base |
+| `https://resources.onestartapi.com/assets/` | Asset downloads |
+| `https://m.google.com/devicemanagement/data/api` | Google device management |
+
+### Payload Imports (Suspicious APIs)
+- **ADVAPI32.dll**: `CreateProcessAsUserW`, `CreateProcessWithTokenW`, `CryptEncrypt`, `RegSetValueExW`
+- **KERNEL32.dll**: `CreateProcessW`, `VirtualAlloc`, `VirtualProtect`, `ConnectNamedPipe`
+- **WINHTTP.dll**: Full HTTP stack (`WinHttpOpen`, `WinHttpConnect`, `WinHttpSendRequest`)
+- **WS2_32.dll**: Raw socket API (`socket`, `connect`, `send`, `recv`)
+- **SHELL32.dll**: `ShellExecuteExW`
+- **CRYPT32.dll**: Certificate decoding/validation
+
+### Uninstall Script (`uninstall.cmd`)
+```batch
+rem Validates path contains \OneStart.ai\OneStartUpdater
+rem Retries deletion 15 times with 1s delays
+rem Removes parent directory if --remove-dir specified
+```
+
+---
+
+## Dynamic Analysis
+
+### Attempts
+1. **Wine (Docker)**: Created `wine-sandbox:latest` image with Wine 8.0. The .NET WPF installer requires .NET Framework 4.8 and an X server. Wine partially initialized but could not load `kernel32.dll` due to read-only filesystem constraints in the sandbox.
+2. **Xvfb + Wine**: Attempted virtual framebuffer but Wine registry writes failed on tmpfs.
+
+### Limitations
+- The sandbox environment (`deob-sandbox:latest`) is read-only with no Wine/Mono
+- Building a custom Wine image works but .NET Framework installation requires Windows components
+- Full dynamic analysis requires a Windows VM or native execution
+
+### Recommended Dynamic Analysis Setup
+- Windows 10/11 VM with network isolation
+- Process Monitor (ProcMon) for file/registry tracking
+- Wireshark for network capture (filter: `host onestartapi.com`)
+- API hooking with Frida or Detours for Omaha protocol analysis
+
+---
+
 ## Status
 
 - [x] Static analysis
 - [x] .NET metadata parsing
 - [x] String extraction
 - [x] Network indicator identification
-- [ ] Dynamic analysis (optional — requires Windows/Wine)
-- [ ] Payload analysis (UpdaterSetup.exe)
+- [x] Payload analysis (UpdaterSetup.exe)
+- [x] Nested archive extraction (7z → updater.7z → updater.exe + uninstall.cmd)
+- [x] Chrome updater component identification
+- [~] Dynamic analysis (partial — Wine attempted, requires Windows VM)
+- [ ] Behavioral monitoring (requires Windows VM)
