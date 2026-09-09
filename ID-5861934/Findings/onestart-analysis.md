@@ -250,7 +250,6 @@ rem Removes parent directory if --remove-dir specified
 2. **Xvfb + Wine**: Attempted virtual framebuffer but Wine registry writes failed on tmpfs.
 
 ### Limitations
-- The sandbox environment (`deob-sandbox:latest`) is read-only with no Wine/Mono
 - Building a custom Wine image works but .NET Framework installation requires Windows components
 - Full dynamic analysis requires a Windows VM or native execution
 
