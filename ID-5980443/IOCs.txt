@@ -1,0 +1,116 @@
+# CLOUDHAZE / LuminaRead IOCs
+# Sample: LuminaRead_1.3994.39.exe
+# SHA256: 7e71e072fbf39e4aaebad71c0e9e3443f9a4455faf687eb87264019cac342c31
+# MD5:    99fb98fb9d20292790d103c9bbacd825
+# SHA1:   3e498102afc2938de7a493db060f17dc233633ae
+
+## Sample hashes
+7e71e072fbf39e4aaebad71c0e9e3443f9a4455faf687eb87264019cac342c31
+99fb98fb9d20292790d103c9bbacd825
+3e498102afc2938de7a493db060f17dc233633ae
+921eb55037b19e1642ed60c4b95686a52b3d58ce58985b09a7573a77ba4395b2
+7f1db334fd3302cf98dd4afddf6f90e98e2a496fe7e86bf1832b89d02f3d73c3
+25ea334b75beede8dcab4c4460313c3013c35e55c16cd066231d80ecfe4c0653
+069fd1e710b341fbe92337116779e6b50a40408f55f6547252cd2c05fe9c0527
+d287a970294d54db5ab3ac5f7e9525c303b9aceac7117b165385c5655717333b
+4c073764737e96fecf9d3e28384b2db628446c512c2df3696689d0c5e045b811
+74aaa6b54133bbb2e77b2ae874e9900a907c269058f798a0a1197288ba1f7124
+3c813ea19ff2e3e2cf566ec69753ba637bb243b4b4e8416dc8ebf68e93016a1d
+0fa4082c6fda0c2885eade0e4f63a2abfeaa26581f903e6784682f5fbd9d0d77
+f4e255dfdf3d23774b0067797cac0f986f1690abbeec217eb60029dcaa7425f8
+835800058050be37366478c662f73d7fcb93a2669e44f98664546fbc8ee6c7ca
+8644bb2ba39ddad352e82cc8fc827986940dec126527ed1cb6fa532e002bea86
+7e4e1555fcdc8af2e4278bbb6f1f23ce
+
+## C2 / infrastructure domains
+apexesmasters.com
+familypenguins.com
+wombatswilson.com
+maximalmaxing.com
+dreamscometrue.vip
+heatindexgreg.com
+lightiswinning.top
+spaceporcupines.com
+westbeavers.com
+motherotters.com
+healskills.com
+tabbyottercub.com
+flawlessgradecheered.com
+topsmagnificentgrade.com
+commonhedgehogs.com
+eagle.sterlingwaters.com
+foxbamboo.com
+pinkexploratorysearch.com
+smallerbestsearch.com
+searchedvictoryresults.com
+yourtopsearchers.com
+thankyou.molehawks.com
+thankyou.charlottedetector.com
+
+## C2 URL paths
+/filament/aperion
+/filament/signet
+/filament/prism
+/filament/photon
+/filament/resonance
+/filament/radiance
+
+## Campaign / session IDs
+ZRBMRQJVPLAFWCILSE
+9e7504de-8c13-427c-9e7a-9ee610c2b9e4
+/quarry/vein
+/quarry/deposit
+/quarry/stratum
+/quarry/gravel
+/quarry/bedrock
+/quarry/sandstone
+/quarry/seam
+/quarry/geode
+/quarry/talc
+/mosaic/anchor
+/mosaic/shoal
+/mosaic/current
+/mosaic/harbor
+/grove/heartwood
+/grove/phloem
+/grove/barkline
+/pluto/zen
+/pluto/oak
+/piglet/trestle
+/windlass
+
+## Delivery / redirect
+beatramiro.com
+softwareslizards.com
+purplepandagroup.com
+royalproductive.com
+biggerworldclassstandard.com
+guessgooseberries.com
+duskhollow.s3.us-east-2.amazonaws.com
+chrome-history-backup.s3.us-east-2.amazonaws.com
+alberfine.s3.us-east-2.amazonaws.com
+leolin15.s3.us-east-2.amazonaws.com
+tidefern.s3.us-east-2.amazonaws.com
+crematoriomascotas.com.ar
+
+## Host artifacts
+%LOCALAPPDATA%\LuminaRead\layout.conf
+%LOCALAPPDATA%\LuminaRead\LuminaRead.exe
+%LOCALAPPDATA%\QuartzLine\terrain.dat
+%LOCALAPPDATA%\QuartzLine\quartzline.exe
+%LOCALAPPDATA%\Caira\caira.exe
+%LOCALAPPDATA%\IronBark\ironbark.exe
+%LOCALAPPDATA%\HostHealthCache\
+%LOCALAPPDATA%\DevicePerfCache\
+
+## Scheduled tasks
+QuartzlineUpdateCheck
+CairaServiceCheck
+IronbarkUpdateCheck
+HostHealthCacheCheck-
+HostHealthCacheCleanup-
+
+## Certificate
+Xiamen Jinduoduo Technology Consulting Co., Ltd.
+00D25F883C5D74CE4399BFC29D85EF3263
+4184F429EA40513117FA8603E87F770B0881370E1BEA0965236152234711AEA3
