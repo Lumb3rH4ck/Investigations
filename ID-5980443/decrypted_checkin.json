@@ -1,0 +1,66 @@
+{
+  "captured": "2026-11-05",
+  "method": "Live sandbox C2 capture (familypenguins.com -> 127.0.0.1 fake TLS). Shuffle patched to identity to recover plaintext; XOR key byte brute-forced.",
+  "requests": [
+    {
+      "method": "POST",
+      "url": "https://familypenguins.com/filament/aperion",
+      "headers": {
+        "content-type": "text/plain",
+        "accept": "*/*",
+        "host": "familypenguins.com",
+        "user-agent": null
+      },
+      "body_b64_len": 264,
+      "decrypted_json": {
+        "clientMode": "standard",
+        "dispatch": "survey",
+        "locale": "en-US",
+        "nextal": "ZRBMRQJVPLAFWCILSE",
+        "osArch": "x64",
+        "osTarget": "windows",
+        "schemaRevision": "1.0",
+        "timezone": "UTC",
+        "warden": "9e7504de-8c13-427c-9e7a-9ee610c2b9e4"
+      }
+    },
+    {
+      "method": "POST",
+      "url": "https://familypenguins.com/filament/signet",
+      "headers": {
+        "content-type": "text/plain",
+        "accept": "*/*",
+        "host": "familypenguins.com",
+        "user-agent": null
+      },
+      "body_b64_len": 300,
+      "decrypted_json": {
+        "clientMode": "standard",
+        "eventScope": "notice",
+        "formatRevision": "standard",
+        "herald": "ZRBMRQJVPLAFWCILSE",
+        "ledger": "Invalid symbol 123, offset 0.",
+        "presto": "K7R",
+        "releaseStream": "current",
+        "sessionKind": "local",
+        "witness": "9e7504de-8c13-427c-9e7a-9ee610c2b9e4"
+      }
+    }
+  ],
+  "campaign_id": "ZRBMRQJVPLAFWCILSE",
+  "machine_uuid": "9e7504de-8c13-427c-9e7a-9ee610c2b9e4",
+  "machine_uuid_note": "Persistent across runs on the same host (verified with two runs). Differs from the layout.conf compass UUID.",
+  "protocol": {
+    "encode_order": [
+      "gzip (manual header 1f 8b 08 00 00 00 00 00 00 03)",
+      "chained XOR (key[9]=0xB7, seed, previous byte)",
+      "bit rotation: rol(byte, (seed+i)&7)",
+      "Fisher-Yates shuffle (LCG state=state*mult+inc, j=state%(i+1), state0=seed^len)",
+      "prepend key[8]=0x5A and 4-byte LE seed",
+      "base64"
+    ],
+    "key_0x5a": "message prefix byte",
+    "key_0xb7": "XOR key byte (LuminaRead build; QuartzLine uses 0xD7)",
+    "seed": "4 random bytes from ProcessPrng (bcryptprimitives)"
+  }
+}

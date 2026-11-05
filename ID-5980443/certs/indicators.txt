@@ -1,0 +1,42 @@
+# Authenticode Code-Signing Certificate Indicators
+# Sample: LuminaRead_1.3994.39.exe (CLOUDHAZE)
+# Sample SHA256: 7e71e072fbf39e4aaebad71c0e9e3443f9a4455faf687eb87264019cac342c31
+# Extracted: 2026-11-05T14:00:05Z
+
+## Leaf certificate (primary IOC)
+  subject=serialNumber = 91350206MA8T36LL6G, jurisdictionC = CN, businessCategory = Private Organization, C = CN, ST = Fujian Sheng, O = "Xiamen Jinduoduo Technology Consulting Co., Ltd.", CN = "Xiamen Jinduoduo Technology Consulting Co., Ltd."
+  issuer=C = GB, O = Sectigo Limited, CN = Sectigo Public Code Signing CA EV R36
+  serial=D25F883C5D74CE4399BFC29D85EF3263
+  notBefore=Mar  9 00:00:00 2026 GMT
+  notAfter=Mar  9 23:59:59 2027 GMT
+  SHA-256 Thumbprint: 41:84:F4:29:EA:40:51:31:17:FA:86:03:E8:7F:77:0B:08:81:37:0E:1B:EA:09:65:23:61:52:23:47:11:AE:A3
+  SHA-1   Thumbprint: 5C:01:80:43:2C:DD:93:60:5D:1E:C2:35:0A:0F:5B:65:97:8E:2E:22
+  MD5     Thumbprint: AD:D4:AA:B0:35:3A:BD:AD:A5:61:82:BC:10:33:6F:42
+
+## Chain certificates
+  --- cert1.pem ---
+    subject=C = GB, O = Sectigo Limited, CN = Sectigo Public Code Signing Root R46
+    serial=48FC93B46055948D36A7C98A89D69416
+    sha256 Fingerprint=7D:B9:F7:40:2A:52:3D:D3:38:66:3B:33:D5:5A:AD:0D:D0:8C:B6:7E:68:7D:F0:D4:D9:8E:7C:5F:CA:27:EF:D1
+  --- cert2.pem ---
+    subject=C = GB, O = Sectigo Limited, CN = Sectigo Public Code Signing CA EV R36
+    serial=33D708A891405319E2A5BBD339B9AD6E
+    sha256 Fingerprint=38:4E:9F:98:35:5A:13:35:65:EB:03:08:3B:79:E7:1A:46:F0:0C:21:35:2E:D7:C0:69:90:D8:41:22:8C:BE:88
+  --- cert3.pem ---
+    subject=serialNumber = 91350206MA8T36LL6G, jurisdictionC = CN, businessCategory = Private Organization, C = CN, ST = Fujian Sheng, O = "Xiamen Jinduoduo Technology Consulting Co., Ltd.", CN = "Xiamen Jinduoduo Technology Consulting Co., Ltd."
+    serial=D25F883C5D74CE4399BFC29D85EF3263
+    sha256 Fingerprint=41:84:F4:29:EA:40:51:31:17:FA:86:03:E8:7F:77:0B:08:81:37:0E:1B:EA:09:65:23:61:52:23:47:11:AE:A3
+
+## Leaf certificate details
+          Serial Number:
+          Signature Algorithm: sha256WithRSAEncryption
+          Issuer: C = GB, O = Sectigo Limited, CN = Sectigo Public Code Signing CA EV R36
+              Not Before: Mar  9 00:00:00 2026 GMT
+              Not After : Mar  9 23:59:59 2027 GMT
+          Subject: serialNumber = 91350206MA8T36LL6G, jurisdictionC = CN, businessCategory = Private Organization, C = CN, ST = Fujian Sheng, O = "Xiamen Jinduoduo Technology Consulting Co., Ltd.", CN = "Xiamen Jinduoduo Technology Consulting Co., Ltd."
+          Subject Public Key Info:
+              Public Key Algorithm: rsaEncryption
+                  Public-Key: (4096 bit)
+              X509v3 Subject Key Identifier: 
+                  CA Issuers - URI:http://crt.sectigo.com/SectigoPublicCodeSigningCAEVR36.crt
+      Signature Algorithm: sha256WithRSAEncryption

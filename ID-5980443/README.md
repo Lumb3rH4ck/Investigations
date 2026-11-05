@@ -486,6 +486,7 @@ Case directory: `~/Work/re-analysis/ID-5980443/`
 - `work/` — analysis scripts (`pe_triage.py`, `deep_static.py`, `xref.py`, `annotate.py`, `dump_va.py`, `resources.py`, `dump_regions.py`)
 - `output/iocs.txt`, `output/iocs.json` — machine-readable IOCs
 - `output/decrypted_checkin.json` — decrypted live C2 check-in
+- `output/certs/` — extracted Authenticode certificate: `Xiamen_Jinduoduo_leaf.pem`/`.der`, `authenticode-chain.p7b`, `chain.pem`, `indicators.txt`
 - `output/https_requests.log` — captured fake-C2 HTTP requests
 - `output/dns.log` — captured DNS queries (C2 domain discovery)
 - `output/strace.log` — syscall trace showing connect() to the C2
