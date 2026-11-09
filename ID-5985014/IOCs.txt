@@ -1,0 +1,84 @@
+# Shift Browser web installer IOCs
+# Sample: Shift - PDF_xyvckh.exe
+# SHA256: 3bd07666fc75b8796cc900cc1e22b1d0f6b3af99397331448dc4258d88dd9e19
+# MD5:    e6dc8339d2a2c2f2cdf7ca56dcc09052
+# SHA1:   b1e6c0f41564a1f9428bd340402ee8751d374c9f
+# Verdict: LEGITIMATE (signed Shift Technologies Inc web-installer stub)
+
+## Sample hashes
+dd5495f6d1dd5f7b30ed6d815711e34d0cc8adb2cd116ac2d63996732fcb71ff  ID-5985014.zip
+3bd07666fc75b8796cc900cc1e22b1d0f6b3af99397331448dc4258d88dd9e19  Shift - PDF_xyvckh.exe
+e6dc8339d2a2c2f2cdf7ca56dcc09052  Shift - PDF_xyvckh.exe (MD5)
+b1e6c0f41564a1f9428bd340402ee8751d374c9f  Shift - PDF_xyvckh.exe (SHA1)
+92af9d054e3b5dc9f472ff9534060d1c70e2ac77f768ae9e5029e29fcd606198  Win32Library.dll (embedded payload)
+d82b30898c428a7dbee81cecea520f68  Win32Library.dll (MD5)
+
+## Network domains / URLs (Shift infrastructure)
+https://downloads.tryshift.com/releases/win-x64/shift-v139.1.3-installer.exe
+https://cdn77-downloads.tryshift.com/releases/win-x64/shift-v139.1.3-installer.exe
+https://tryshift.com
+https://tryshift.com/download
+https://tryshift.com/eula
+https://tryshift.com/privacy
+https://updates.shiftapis.com
+https://attribution.shiftapis.com/pdata/
+https://api.mixpanel.com
+https://api.keen.io/3.0/projects/{0}/events/
+
+## Network domains / URLs (Microsoft dotnet feeds, in Win32Library.dll - unused by this script)
+https://dotnetcli.azureedge.net/dotnet
+https://dotnetbuilds.azureedge.net/public
+https://aka.ms/dotnet
+https://aka.ms/dotnet-os-lifecycle
+
+## Analytics identifiers
+954ec00f0d8908fa21c3ebb20e6ceb4d          Mixpanel token
+639cfbb0452c99488ad2b956                  Keen.io project ID
+dd0e945866f6c774af909e09c933fc6f56756f23e0e72f3de4cabadf256237ea9b9650a961b85d7e535b75e3d640fc4042d1292b09c5ba4851f89769a49aa9da41ecb75b55f7e8feae80adfbb6d4cf5c880fa576ca0140e0f3cdb3b3d426fb55  Keen.io write key
+
+## Registry keys
+SOFTWARE\Shift
+Software\Microsoft\Windows\CurrentVersion\Uninstall\{95fcf903-63b1-44bd-ab77-358a5bd30aae}_is1
+SOFTWARE\Clients\StartMenuInternet
+SOFTWARE\Classes\.htm\OpenWithProgids
+SOFTWARE\Classes\.html\OpenWithProgids
+SOFTWARE\Classes\.pdf\OpenWithProgids
+SOFTWARE\Classes\.shtml\OpenWithProgids
+SOFTWARE\Classes\.svg\OpenWithProgids
+SOFTWARE\Classes\.webp\OpenWithProgids
+SOFTWARE\Classes\.xht\OpenWithProgids
+SOFTWARE\Classes\.xhtml\OpenWithProgids
+SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice
+SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize
+Software\Microsoft\Edge\BLBeacon
+
+## Mutexes
+Shift-841bfdc9-095f-4be3-9a77-bce0d18a78a8
+ShiftLauncher-334c9fbc-495b-4ed8-851b-987ebe92f1ce
+ShiftStub-78413f9e-6ba7-4164-8052-f252c88e00e0
+ShiftSetup-1c730e63-6e5f-40e0-80ac-ea3d2e84e629
+
+## GUIDs / AppID
+{95fcf903-63b1-44bd-ab77-358a5bd30aae}     AppId / uninstall key
+{591209C7-767B-42B2-9FBA-44EE4615F2C7}
+DCB00C01-570F-4A9B-8D69-199FDBA5723B     NETWORKLIST.NetworkListManager CLSID (connectivity check)
+
+## Files / paths
+{tmp}\Shift Setup.exe                     downloaded full installer (executed, then deleted)
+{tmp}\Win32Library.dll
+{tmp}\*.png, {tmp}\*.json, {tmp}\Geist-VariableFont_wght.ttf
+{localappdata}\Shift
+{app}\chromium\.configurations\install-info.json
+{app}\chromium\.configurations\split-tests.json
+
+## Processes
+taskkill /f /im shift.exe                 terminates running Shift before install
+
+## Certificate
+Subject:    Shift Technologies Inc (Victoria, BC, Canada)
+Issuer:     DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1
+Serial:     0B08348496F9EA0BFADC2F629570407C
+Thumbprint: F77055D80573BA831886B2A06AD633E80AD0EB2027E7D594DF8F11F90AF7F3BD
+Valid:      2025-11-13 -> 2028-11-14
+Timestamp:  2025-11-14 21:15:21 GMT
+Status:     Valid / not revoked

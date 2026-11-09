@@ -1,0 +1,56 @@
+=== sample hashes ===
+dd5495f6d1dd5f7b30ed6d815711e34d0cc8adb2cd116ac2d63996732fcb71ff  /samples/ID-5985014.zip
+3bd07666fc75b8796cc900cc1e22b1d0f6b3af99397331448dc4258d88dd9e19  /output/extracted/Shift - PDF_xyvckh.exe
+=== extracted payload hashes ===
+92af9d054e3b5dc9f472ff9534060d1c70e2ac77f768ae9e5029e29fcd606198  /output/unpacked/tmp/Win32Library.dll
+febb2b8dcc0f24bedfd256703bcac8dbbc861f6bc0b0a00bec10c12fc946c012  /output/unpacked/tmp/recipe.png
+c15f36e196edd471765a5514743cdc8ca5e2734c011a09e76f22a39011c2e947  /output/unpacked/tmp/shift-blocker.png
+c2c490fe2e0d3095e82679f0ba7b5f76bd322162215aba852bb7a6ecce2768e3  /output/unpacked/tmp/shift-business-directory.png
+e58d63b9709d1a60ebfb3b50920279c9f4ebb42ff1b62229a28d9d3ccbee98d1  /output/unpacked/tmp/shift-calculator.png
+cbc8db5e49dc08e6984d41dae2e2c086e1fbf60a3a6932f0e0b38697eedfef38  /output/unpacked/tmp/shift-dictionary.png
+e7ceb30dece148446ee610fd795d4852391186d43895d70af7d230b1a4554942  /output/unpacked/tmp/shift-email.png
+127337b32ce05d241627473650a6b178145c869fa8c392c857ca8c87740711f8  /output/unpacked/tmp/shift-games.png
+28495c6a5f3ab802227f1459e30971d61b8c02df319b16306492f8df25c963e2  /output/unpacked/tmp/shift-manuals.png
+460dc102097fa1f46521006bea484c93257f2428b8f8538d2e72476c4ef30d11  /output/unpacked/tmp/shift-maps.png
+eb94459f4a32e78220116f6e719f5ebe21c7ac5d10e69c286802a19b42460967  /output/unpacked/tmp/shift-package-tracker.png
+c5ab6aea787bf9da9116554f93704d342e8214706904849d6fdb66856923e460  /output/unpacked/tmp/shift-pdf.png
+09329bbc420499e9638f5c4b5bf9353a69567837ad91bcf51f93473c3c26c00d  /output/unpacked/tmp/shift-people-search.png
+4d860487fed0fceec4917440a7eba13bc7748e07af20b7e203d4ed68919c51e2  /output/unpacked/tmp/shift-print.png
+a1a4d48c6ed31eebae58b0c2aa54e943c725e180948117915c716aa40aabe97d  /output/unpacked/tmp/shift-shopping.png
+bc6b0093a62f609cc8b41330118b28ce840d828e311411cbbe64d8e6a50eb76e  /output/unpacked/tmp/shift-speed-test.png
+6e9702c5a2d9fc94cef1645f7ff6f9c2397000185d37f925d79143d1ea0734f4  /output/unpacked/tmp/shift-templates.png
+af1f10a091ab260e88b96ca8ba18e9cafba768cc467f7468853bf69294a58aac  /output/unpacked/tmp/shift-weather.png
+a1d2c48437058f24a5ea85c323469473ac4430198770794522a32c28783aadb7  /output/unpacked/tmp/shift.png
+9cb22401a923dfecafc5f51dacef5cbae440b53b9932217c6bc4626f04920929  /output/unpacked/tmp/min-10-dark.png
+d43e4b285b5b54313b53e87d2a56ca9ba0c85f8f55c9c5fdcdb4fac815ff4d02  /output/unpacked/tmp/min-10-light.png
+f23b72079a7dd4f786f7e18edaf0e89f8366cfc2c9291566a4e014000026751e  /output/unpacked/tmp/min-11-dark.png
+fef9a507556a330f457eac557c0f430c8993de5b61638c455a3f4311b0bd47a3  /output/unpacked/tmp/min-11-light.png
+0e774c6ff8143d4a0f4071ad69ebf85d1c55cb9a3950e26e2786a4329f2a3e6b  /output/unpacked/tmp/exit-10-dark.png
+0fc8e40a3b0e7a516e108dc0f3267dcccb4de04d28a21eb68a45a8ac1bb9df8f  /output/unpacked/tmp/exit-10-light.png
+5924cadadc8c3bfc06f044e45f73debfb017163b0ba1d18eec20e6eb340ea6e5  /output/unpacked/tmp/exit-11-dark.png
+086677bce7d245064b97e09c161fa84df9684c93de47eab9cface4890e5ebb0f  /output/unpacked/tmp/exit-11-light.png
+a45a7bf12d8e17d5b05c81cc3bd5ee5e9299b9b522e4b883ed00808635d99bba  /output/unpacked/tmp/button-10-dark.png
+a45a7bf12d8e17d5b05c81cc3bd5ee5e9299b9b522e4b883ed00808635d99bba  /output/unpacked/tmp/button-10-light.png
+496201fc385719aff49623d14fb524354ea64df85a757934a935803503586389  /output/unpacked/tmp/button-11-dark.png
+5f3b5ac5ef37b78b6ae95441da2f6245a807d80fcf943027493879c8f5264e78  /output/unpacked/tmp/button-11-light.png
+6f8fe508c8df60b03509e12118f62cd9bc1e14385d16962a0dd2a1e3bd2e58ec  /output/unpacked/tmp/background.png
+05882c61d2c1a9c14adc88cae41e83329e5d000a65ddc9f25fe36f30787d514e  /output/unpacked/tmp/close-active.png
+ea3e44238f1d1c7fc78aeca048ac537e2da97b2112b5ae9b895982d42194f25e  /output/unpacked/tmp/close-hover.png
+1cabc3da52bc605d2d17a8446b24b9a7c3c8444908a0f2b735bdd84d935bbdb8  /output/unpacked/tmp/close-rest.png
+dbd78d41bf5dc88d9279c9a72267b211190d897ae2c3973ed23d017b48c18bc7  /output/unpacked/tmp/ellipses-0.png
+010a089ab56b87bbfef7428be0ef44c45bb2db8203923219b25da3c17ea143e9  /output/unpacked/tmp/ellipses-1.png
+39e48bdd0e8de43aff5cad090324eba99fc5836d207f68c4a7d4992128fa5b0b  /output/unpacked/tmp/ellipses-2.png
+eb23fb4a8cb93fc1529b71c6faeaa6b8349f7b2a9494961656818b84ee21c697  /output/unpacked/tmp/ellipses-3.png
+e9dd0d1eabace8090a9c8299f2f3a1b001669a454511baad317862d3413f2d94  /output/unpacked/tmp/installing.png
+b79ae1c53cc433c07bfdfaf296e8b9d20069d9380c813f16f92e30ab1bc33449  /output/unpacked/tmp/minimize-active.png
+c3c174293a5af12f6daae8859bcdc055f7a70de9b57cb925e6048b330e52cb98  /output/unpacked/tmp/minimize-hover.png
+9ccf4c0e5febe271cfdfebdbe7eed9241d16fdf78be9a19a32829b2d06261a47  /output/unpacked/tmp/minimize-rest.png
+cb8fc57dd487dee7a87b53f9fdec86f6c0c4d35f53cf266b1cc616ed759c2c0b  /output/unpacked/tmp/progress.png
+b17278190bd0c2be811fe2c3060be95f1aa40cd34e237478743d7c100c28005d  /output/unpacked/tmp/Geist-VariableFont_wght.ttf
+544d13ca25eb71670a6352baf06b3345960a71a36885a28db6cb4270916c3b0b  /output/unpacked/tmp/de.json
+dfa6abed17bd9cda8423e735c0aa10ac26e0ec5e2aa8185d8149a99d3e4b29c3  /output/unpacked/tmp/en.json
+795d81f7138ec0d958224cfad25281b91c6844eef7eb3e287e5965c2e3658265  /output/unpacked/tmp/es.json
+156d5d900c86ec30e5cc088441b816c4ab4b92b9ee2a431fab23fb42e405d25d  /output/unpacked/tmp/fr.json
+c42bfe1c4b8dc5d7a7632795f10cf37d71f5e50283188031119a387762387e5c  /output/unpacked/tmp/pt.json
+=== DLL hash ===
+92af9d054e3b5dc9f472ff9534060d1c70e2ac77f768ae9e5029e29fcd606198  /output/unpacked/tmp/Win32Library.dll
