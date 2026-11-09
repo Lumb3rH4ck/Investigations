@@ -1,0 +1,12 @@
+﻿{
+  "yes": "Sim",
+  "no": "Não",
+  "accept": "Aceitar e instalar",
+  "cancel": "Cancelar",
+  "exit_dialog": "A configuração não está concluída. Se você sair agora, o programa não será instalado. Sair da configuração?",
+  "installation_caption": "Instalando...",
+  "stub_caption": "Preparando a aplicação %s...",
+  "stub_caption_no_profile": "Preparando Shift Browser...",
+  "shift-manuals": "Manuais",
+  "window_title": "Instalação"
+}

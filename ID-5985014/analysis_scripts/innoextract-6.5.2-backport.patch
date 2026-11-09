@@ -1,0 +1,792 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6995610..964234a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -173,13 +173,61 @@ else()
+ 	set(INNOEXTRACT_HAVE_LZMA 0)
+ endif()
+ 
+-find_package(Boost REQUIRED COMPONENTS
++set(INNOEXTRACT_BOOST_COMPONENTS
+ 	iostreams
+ 	filesystem
+ 	date_time
+-	system
+ 	program_options
+ )
++
++# CMake 3.30 deprecated the bundled FindBoost module and CMP0167 defaults to NEW
++# from CMake 4.0 on, so find_package(Boost) only looks for the BoostConfig.cmake
++# that upstream Boost ships from 1.70 onwards. Boost before that has no such
++# config and can only be found through the module, so try the config first and
++# fall back to the module - otherwise a new CMake cannot find an old Boost at
++# all, while an old CMake still works either way.
++# find_package() searches Boost_ROOT but not the older BOOST_ROOT that
++# FindBoost used to honour, so pass it on - build environments that only set
++# BOOST_ROOT (AppVeyor's Windows images, for one) would otherwise find nothing
++# in config mode.
++if(NOT Boost_ROOT)
++	if(BOOST_ROOT)
++		set(Boost_ROOT "${BOOST_ROOT}")
++	elseif(DEFINED ENV{BOOST_ROOT})
++		set(Boost_ROOT "$ENV{BOOST_ROOT}")
++	elseif(DEFINED ENV{BOOSTROOT})
++		set(Boost_ROOT "$ENV{BOOSTROOT}")
++	endif()
++endif()
++
++find_package(Boost QUIET CONFIG COMPONENTS ${INNOEXTRACT_BOOST_COMPONENTS}
++                                OPTIONAL_COMPONENTS system)
++if(NOT Boost_FOUND)
++	# The module is only reachable while CMP0167 is not set to NEW.
++	if(POLICY CMP0167)
++		cmake_policy(PUSH)
++		cmake_policy(SET CMP0167 OLD)
++	endif()
++	find_package(Boost MODULE COMPONENTS ${INNOEXTRACT_BOOST_COMPONENTS}
++	                          OPTIONAL_COMPONENTS system)
++	if(POLICY CMP0167)
++		cmake_policy(POP)
++	endif()
++endif()
++if(NOT Boost_FOUND)
++	# Report where we looked - a bare "not found" gives no way to tell whether
++	# the hint variables were unset, pointed somewhere wrong, or the install is
++	# simply incomplete.
++	message(STATUS "Boost_ROOT: '${Boost_ROOT}'")
++	message(STATUS "BOOST_ROOT variable: '${BOOST_ROOT}'")
++	message(STATUS "BOOST_ROOT environment: '$ENV{BOOST_ROOT}'")
++	message(STATUS "BOOSTROOT environment: '$ENV{BOOSTROOT}'")
++	message(STATUS "BOOST_INCLUDEDIR environment: '$ENV{BOOST_INCLUDEDIR}'")
++	message(STATUS "BOOST_LIBRARYDIR environment: '$ENV{BOOST_LIBRARYDIR}'")
++	message(STATUS "CMAKE_PREFIX_PATH: '${CMAKE_PREFIX_PATH}'")
++	message(FATAL_ERROR "Could not find Boost with the "
++	                    "${INNOEXTRACT_BOOST_COMPONENTS} components.")
++endif()
+ list(APPEND LIBRARIES ${Boost_LIBRARIES})
+ link_directories(${Boost_LIBRARY_DIRS})
+ include_directories(SYSTEM ${Boost_INCLUDE_DIR})
+diff --git a/README.md b/README.md
+index 3a5e826..f7a7b8e 100644
+--- a/README.md
++++ b/README.md
+@@ -1,7 +1,7 @@
+ 
+ # innoextract - A tool to unpack installers created by Inno Setup
+ 
+-[Inno Setup](https://jrsoftware.org/isinfo.php) is a tool to create installers for Microsoft Windows applications. innoextract allows to extract such installers under non-Windows systems without running the actual installer using wine. innoextract currently supports installers created by Inno Setup 1.2.10 to 6.3.3.
++[Inno Setup](https://jrsoftware.org/isinfo.php) is a tool to create installers for Microsoft Windows applications. innoextract allows to extract such installers under non-Windows systems without running the actual installer using wine. innoextract currently supports installers created by Inno Setup 1.2.10 to 6.6.1.
+ 
+ In addition to standard Inno Setup installers, innoextract also supports some modified Inno Setup variants including Martijn Laan's My Inno Setup Extensions 1.3.10 to 3.0.6.1 as well as GOG.com's Inno Setup-based game installers. innoextract is able to unpack Wadjet Eye Games installers (to play with AGS), Arx Fatalis patches (for use with Arx Libertatis) as well as various other Inno Setup executables.
+ 
+@@ -21,7 +21,7 @@ Author: [Daniel Scharrer](https://constexpr.org/)
+ * **liblzma** from [xz-utils](https://tukaani.org/xz/) *(optional)*
+ * **iconv** (*optional*, either as part of the system libc, as is the case with [glibc](https://www.gnu.org/software/libc/) and [uClibc](https://uclibc.org/), or as a separate [libiconv](https://www.gnu.org/software/libiconv/))
+ 
+-For Boost you will need the headers as well as the `iostreams`, `filesystem`, `date_time`, `system` and `program_options` libraries. Older Boost version may work but are not actively supported. The boost `iostreams` library needs to be build with zlib and bzip2 support.
++For Boost you will need the headers as well as the `iostreams`, `filesystem`, `date_time` and `program_options` libraries. Older Boost versions may work but are not actively supported. The boost `iostreams` library needs to be built with zlib and bzip2 support.
+ 
+ While innoextract can be built without liblzma by manually setting `-DUSE_LZMA=OFF`, it is highly recommended and you won't be able to extract most installers created by newer Inno Setup versions without it.
+ 
+diff --git a/VERSION b/VERSION
+index e2b4fe9..0c4a904 100644
+--- a/VERSION
++++ b/VERSION
+@@ -1,7 +1,7 @@
+ innoextract 1.10-dev
+ 
+ Known working Inno Setup versions:
+-Inno Setup 1.2.10 to 6.3.3
++Inno Setup 1.2.10 to 6.6.1
+ 
+ Bug tracker:
+ https://innoextract.constexpr.org/issues
+diff --git a/src/cli/debug.cpp b/src/cli/debug.cpp
+index c4e4cd3..732a814 100644
+--- a/src/cli/debug.cpp
++++ b/src/cli/debug.cpp
+@@ -638,7 +638,7 @@ static void dump_headers(std::istream & is, const setup::version & version, cons
+ 	}
+ 	
+ 	try {
+-		ofs << stream::block_reader::get(is, version)->rdbuf();
++		ofs << stream::block_reader::get(is, version, i == 0)->rdbuf();
+ 	} catch(const std::exception & e) {
+ 		std::ostringstream oss;
+ 		oss << "Stream error while dumping " << type << " setup headers!\n";
+diff --git a/src/cli/extract.cpp b/src/cli/extract.cpp
+index 4989311..bfdb8ba 100644
+--- a/src/cli/extract.cpp
++++ b/src/cli/extract.cpp
+@@ -981,7 +981,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
+ 	}
+ #ifdef DEBUG
+ 	if(logger::debug) {
+-		entries = setup::info::entry_types::all();
++		entries = setup::info::entry_types::all() & ~setup::info::NoUnknownVersion;
+ 	}
+ #endif
+ 	
+diff --git a/src/loader/offsets.cpp b/src/loader/offsets.cpp
+index 0c0d6a4..9d5b16b 100644
+--- a/src/loader/offsets.cpp
++++ b/src/loader/offsets.cpp
+@@ -142,45 +142,98 @@ bool offsets::load_offsets_at(std::istream & is, boost::uint32_t pos) {
+ 	checksum.init();
+ 	checksum.update(magic, sizeof(magic));
+ 	
++	boost::uint32_t revision = 0;
+ 	if(version >= INNO_VERSION(5, 1,  5)) {
+-		boost::uint32_t revision = checksum.load<boost::uint32_t>(is);
++		revision = checksum.load<boost::uint32_t>(is);
+ 		if(is.fail()) {
+ 			is.clear();
+ 			debug("could not read loader header revision");
+ 			return false;
+-		} else if(revision != 1) {
++		} else if(revision != 1 && revision != 2) {
+ 			log_warning << "Unexpected setup loader revision: " << revision;
+ 		}
+ 	}
+ 	
+-	(void)checksum.load<boost::uint32_t>(is);
+-	exe_offset = checksum.load<boost::uint32_t>(is);
+-	
+-	if(version >= INNO_VERSION(4, 1, 6)) {
++	if(revision >= 2) {
++		
++		/*
++		 * Revision 2 (Inno Setup 6.5 and later) widens the file offsets to 64 bits so that
++		 * installers can grow past 4 GiB, and prefixes them with the total size of the
++		 * installer. The two sizes describing setup.e32 stay 32-bit, as does its checksum:
++		 *
++		 *   uint64 total_size
++		 *   uint64 exe_offset
++		 *   uint32 exe_uncompressed_size
++		 *   uint32 exe_checksum (CRC32)
++		 *   uint64 header_offset
++		 *   uint64 data_offset
++		 */
++		
++		boost::uint64_t total_size = checksum.load<boost::uint64_t>(is);
++		(void)total_size;
++		
++		boost::uint64_t exe_offset64 = checksum.load<boost::uint64_t>(is);
++		
+ 		exe_compressed_size = 0;
+-	} else {
+-		exe_compressed_size = checksum.load<boost::uint32_t>(is);
+-	}
+-	
+-	exe_uncompressed_size = checksum.load<boost::uint32_t>(is);
+-	
+-	if(version >= INNO_VERSION(4, 0, 3)) {
++		exe_uncompressed_size = checksum.load<boost::uint32_t>(is);
++		
+ 		exe_checksum.type = crypto::CRC32;
+ 		exe_checksum.crc32 = checksum.load<boost::uint32_t>(is);
+-	} else {
+-		exe_checksum.type = crypto::Adler32;
+-		exe_checksum.adler32 = checksum.load<boost::uint32_t>(is);
+-	}
+-	
+-	if(version >= INNO_VERSION(4, 0, 0)) {
++		
+ 		message_offset = 0;
++		
++		boost::uint64_t header_offset64 = checksum.load<boost::uint64_t>(is);
++		boost::uint64_t data_offset64 = checksum.load<boost::uint64_t>(is);
++		
++		// Trailing field, zero in every installer seen so far. It is covered by the
++		// loader checksum, so it has to be read even though it is unused.
++		(void)checksum.load<boost::uint32_t>(is);
++		
++		// The offsets are kept in 32-bit fields, so reject anything that would not fit
++		// rather than silently truncating.
++		const boost::uint64_t max_offset = std::numeric_limits<boost::uint32_t>::max();
++		if(exe_offset64 > max_offset || header_offset64 > max_offset
++		   || data_offset64 > max_offset) {
++			log_warning << "Setup loader offsets exceed 4 GiB - not supported";
++			return false;
++		}
++		
++		exe_offset = boost::uint32_t(exe_offset64);
++		header_offset = boost::uint32_t(header_offset64);
++		data_offset = boost::uint32_t(data_offset64);
++		
+ 	} else {
+-		message_offset = util::load<boost::uint32_t>(is);
++		
++		(void)checksum.load<boost::uint32_t>(is);
++		exe_offset = checksum.load<boost::uint32_t>(is);
++		
++		if(version >= INNO_VERSION(4, 1, 6)) {
++			exe_compressed_size = 0;
++		} else {
++			exe_compressed_size = checksum.load<boost::uint32_t>(is);
++		}
++		
++		exe_uncompressed_size = checksum.load<boost::uint32_t>(is);
++		
++		if(version >= INNO_VERSION(4, 0, 3)) {
++			exe_checksum.type = crypto::CRC32;
++			exe_checksum.crc32 = checksum.load<boost::uint32_t>(is);
++		} else {
++			exe_checksum.type = crypto::Adler32;
++			exe_checksum.adler32 = checksum.load<boost::uint32_t>(is);
++		}
++		
++		if(version >= INNO_VERSION(4, 0, 0)) {
++			message_offset = 0;
++		} else {
++			message_offset = util::load<boost::uint32_t>(is);
++		}
++		
++		header_offset = checksum.load<boost::uint32_t>(is);
++		data_offset = checksum.load<boost::uint32_t>(is);
++		
+ 	}
+ 	
+-	header_offset = checksum.load<boost::uint32_t>(is);
+-	data_offset = checksum.load<boost::uint32_t>(is);
+-	
+ 	if(is.fail()) {
+ 		is.clear();
+ 		debug("could not read loader header");
+diff --git a/src/setup/data.cpp b/src/setup/data.cpp
+index 4444ce2..dbc4184 100644
+--- a/src/setup/data.cpp
++++ b/src/setup/data.cpp
+@@ -21,6 +21,7 @@
+ #include "setup/data.hpp"
+ 
+ #include <cstring>
++#include <limits>
+ 
+ #include "setup/info.hpp"
+ #include "setup/version.hpp"
+@@ -56,7 +57,19 @@ void data_entry::load(std::istream & is, const info & i) {
+ 		}
+ 	}
+ 	
+-	chunk.sort_offset = chunk.offset = util::load<boost::uint32_t>(is);
++	if(i.version >= INNO_VERSION(6, 5, 2)) {
++		// StartOffset widened from Longint to Int64 in 6.5.2 (Shared.Struct.pas).
++		// The offset is kept in a 32-bit field, so anything that would not fit is
++		// clamped and reported rather than silently truncated.
++		boost::uint64_t start_offset = util::load<boost::uint64_t>(is);
++		if(start_offset > std::numeric_limits<boost::uint32_t>::max()) {
++			log_warning << "Chunk offset exceeds 4 GiB: " << start_offset;
++			start_offset = std::numeric_limits<boost::uint32_t>::max();
++		}
++		chunk.sort_offset = chunk.offset = boost::uint32_t(start_offset);
++	} else {
++		chunk.sort_offset = chunk.offset = util::load<boost::uint32_t>(is);
++	}
+ 	
+ 	if(i.version >= INNO_VERSION(4, 0, 1)) {
+ 		file.offset = util::load<boost::uint64_t>(is);
+@@ -136,20 +149,22 @@ void data_entry::load(std::istream & is, const info & i) {
+ 	stored_flag_reader<flags> flagreader(is, i.version.bits());
+ 	
+ 	flagreader.add(VersionInfoValid);
+-	flagreader.add(VersionInfoNotValid);
++	if(i.version < INNO_VERSION(6, 4, 3)) {
++		flagreader.add(VersionInfoNotValid);
++	}
+ 	if(i.version >= INNO_VERSION(2, 0, 17) && i.version < INNO_VERSION(4, 0, 1)) {
+ 		flagreader.add(BZipped);
+ 	}
+ 	if(i.version >= INNO_VERSION(4, 0, 10)) {
+ 		flagreader.add(TimeStampInUTC);
+ 	}
+-	if(i.version >= INNO_VERSION(4, 1, 0)) {
++	if(i.version >= INNO_VERSION(4, 1, 0) && i.version < INNO_VERSION(6, 4, 3)) {
+ 		flagreader.add(IsUninstallerExe);
+ 	}
+ 	if(i.version >= INNO_VERSION(4, 1, 8)) {
+ 		flagreader.add(CallInstructionOptimized);
+ 	}
+-	if(i.version >= INNO_VERSION(4, 2, 0)) {
++	if(i.version >= INNO_VERSION(4, 2, 0) && i.version < INNO_VERSION(6, 4, 3)) {
+ 		flagreader.add(Touch);
+ 	}
+ 	if(i.version >= INNO_VERSION(4, 2, 2)) {
+@@ -160,7 +175,7 @@ void data_entry::load(std::istream & is, const info & i) {
+ 	} else {
+ 		options |= ChunkCompressed;
+ 	}
+-	if(i.version >= INNO_VERSION(5, 1, 13)) {
++	if(i.version >= INNO_VERSION(5, 1, 13) && i.version < INNO_VERSION(6, 4, 3)) {
+ 		flagreader.add(SolidBreak);
+ 	}
+ 	if(i.version >= INNO_VERSION(5, 5, 7) && i.version < INNO_VERSION(6, 3, 0)) {
+@@ -171,7 +186,10 @@ void data_entry::load(std::istream & is, const info & i) {
+ 	
+ 	options |= flagreader.finalize();
+ 	
+-	if(i.version >= INNO_VERSION(6, 3, 0)) {
++	if(i.version >= INNO_VERSION(6, 4, 3)) {
++		// The Sign field was removed again in 6.4.3 (Shared.Struct.pas)
++		sign = NoSetting;
++	} else if(i.version >= INNO_VERSION(6, 3, 0)) {
+ 		sign = stored_enum<stored_sign_mode>(is).get();
+ 	} else if(options & SignOnce) {
+ 		sign = Once;
+diff --git a/src/setup/file.cpp b/src/setup/file.cpp
+index a2e917e..135a197 100644
+--- a/src/setup/file.cpp
++++ b/src/setup/file.cpp
+@@ -92,6 +92,26 @@ void file_entry::load(std::istream & is, const info & i) {
+ 	
+ 	load_condition_data(is, i);
+ 	
++	if(i.version >= INNO_VERSION(6, 5, 0)) {
++		/*
++		 * 6.5 adds download/archive support (Shared.Struct.pas):
++		 *   Excludes, DownloadISSigSource, DownloadUserName, DownloadPassword,
++		 *   ExtractArchivePassword: String
++		 *   Verification: record { ISSigAllowedKeys: AnsiString;
++		 *                          Hash: TSHA256Digest; Typ: Byte }
++		 */
++		std::string ignored;
++		is >> util::encoded_string(ignored, i.codepage, i.header.lead_bytes); // Excludes
++		is >> util::encoded_string(ignored, i.codepage, i.header.lead_bytes); // DownloadISSigSource
++		is >> util::encoded_string(ignored, i.codepage, i.header.lead_bytes); // DownloadUserName
++		is >> util::encoded_string(ignored, i.codepage, i.header.lead_bytes); // DownloadPassword
++		is >> util::encoded_string(ignored, i.codepage, i.header.lead_bytes); // ExtractArchivePassword
++		util::binary_string::skip(is); // Verification.ISSigAllowedKeys
++		char sha256[32];
++		is.read(sha256, std::streamsize(sizeof(sha256))); // Verification.Hash
++		(void)util::load<boost::uint8_t>(is); // Verification.Typ
++	}
++	
+ 	load_version_data(is, i.version);
+ 	
+ 	location = util::load<boost::uint32_t>(is, i.version.bits());
+@@ -189,6 +209,10 @@ void file_entry::load(std::istream & is, const info & i) {
+ 	if(i.version >= INNO_VERSION(5, 2, 5)) {
+ 		flagreader.add(GacInstall);
+ 	}
++	if(i.version >= INNO_VERSION(6, 5, 0)) {
++		flagreader.add(Download);
++		flagreader.add(ExtractArchive);
++	}
+ 	
+ 	options |= flagreader.finalize();
+ 	
+@@ -239,6 +263,8 @@ NAMES(setup::file_entry::flags, "File Option",
+ 	"set ntfs compression",
+ 	"unset ntfs compression",
+ 	"gac install",
++	"download",
++	"extract archive",
+ 	"readme",
+ )
+ 
+diff --git a/src/setup/file.hpp b/src/setup/file.hpp
+index 604b2ae..0536e4f 100644
+--- a/src/setup/file.hpp
++++ b/src/setup/file.hpp
+@@ -77,6 +77,8 @@ struct file_entry : public item {
+ 		SetNtfsCompression,
+ 		UnsetNtfsCompression,
+ 		GacInstall,
++		Download,
++		ExtractArchive,
+ 		
+ 		// obsolete options:
+ 		IsReadmeFile
+diff --git a/src/setup/header.cpp b/src/setup/header.cpp
+index bbe9df9..b7cd570 100644
+--- a/src/setup/header.cpp
++++ b/src/setup/header.cpp
+@@ -266,6 +266,15 @@ void header::load(std::istream & is, const version & version) {
+ 		is >> util::binary_string(architectures_allowed_expr);
+ 		is >> util::binary_string(architectures_installed_in_64bit_mode_expr);
+ 	}
++	if(version >= INNO_VERSION(6, 4, 2)) {
++		std::string close_applications_filter_excludes;
++		is >> util::binary_string(close_applications_filter_excludes);
++	}
++	if(version >= INNO_VERSION(6, 5, 0)) {
++		is >> util::binary_string(seven_zip_library_name);
++	} else {
++		seven_zip_library_name.clear();
++	}
+ 	if(version >= INNO_VERSION(5, 2, 5)) {
+ 		is >> util::ansi_string(license_text);
+ 		is >> util::ansi_string(info_before);
+@@ -319,6 +328,11 @@ void header::load(std::istream & is, const version & version) {
+ 	}
+ 	
+ 	directory_count = util::load<boost::uint32_t>(is, version.bits());
++	if(version >= INNO_VERSION(6, 5, 0)) {
++		iss_sig_key_count = util::load<boost::uint32_t>(is, version.bits());
++	} else {
++		iss_sig_key_count = 0;
++	}
+ 	file_count = util::load<boost::uint32_t>(is, version.bits());
+ 	data_entry_count = util::load<boost::uint32_t>(is, version.bits());
+ 	icon_count = util::load<boost::uint32_t>(is, version.bits());
+@@ -361,7 +375,18 @@ void header::load(std::istream & is, const version & version) {
+ 		small_image_back_color = 0;
+ 	}
+ 	
+-	if(version >= INNO_VERSION(6, 0, 0)) {
++	if(version >= INNO_VERSION(6, 6, 0)) {
++		/*
++		 * 6.6 drops WizardStyle and adds WizardDarkStyle after the size
++		 * percentages (Shared.Struct.pas):
++		 *   WizardSizePercentX, WizardSizePercentY: Integer
++		 *   WizardDarkStyle: TSetupWizardDarkStyle
++		 */
++		wizard_style = ClassicStyle;
++		wizard_resize_percent_x = util::load<boost::uint32_t>(is);
++		wizard_resize_percent_y = util::load<boost::uint32_t>(is);
++		(void)util::load<boost::uint8_t>(is); // WizardDarkStyle
++	} else if(version >= INNO_VERSION(6, 0, 0)) {
+ 		wizard_style = stored_enum<stored_setup_style>(is).get();
+ 		wizard_resize_percent_x = util::load<boost::uint32_t>(is);
+ 		wizard_resize_percent_y = util::load<boost::uint32_t>(is);
+@@ -377,7 +402,32 @@ void header::load(std::istream & is, const version & version) {
+ 		image_alpha_format = AlphaIgnored;
+ 	}
+ 	
+-	if(version >= INNO_VERSION(6, 4, 0)) {
++	if(version >= INNO_VERSION(6, 6, 0)) {
++		/*
++		 * 6.6 moves the wizard image colours here, replacing BackColor/BackColor2,
++		 * and 6.6.1 adds WizardImageOpacity.
++		 */
++		image_back_color = util::load<boost::uint32_t>(is);
++		small_image_back_color = util::load<boost::uint32_t>(is);
++		(void)util::load<boost::uint32_t>(is); // WizardImageBackColorDynamicDark
++		(void)util::load<boost::uint32_t>(is); // WizardSmallImageBackColorDynamicDark
++		if(version >= INNO_VERSION(6, 6, 1)) {
++			(void)util::load<boost::uint8_t>(is); // WizardImageOpacity
++		}
++	} else if(version >= INNO_VERSION(6, 5, 2)) {
++		/* 6.5.2 adds WizardImageBackColor + WizardSmallImageBackColor after the alpha format. */
++		image_back_color = util::load<boost::uint32_t>(is);
++		small_image_back_color = util::load<boost::uint32_t>(is);
++	}
++	
++	if(version >= INNO_VERSION(6, 5, 0)) {
++		/*
++		 * 6.5 moves PasswordTest and the KDF salt/iterations/nonce out of
++		 * TSetupHeader and into the TSetupEncryptionHeader that now precedes the
++		 * compressed block (see stream/block.cpp), so nothing is read here.
++		 */
++		password.type = crypto::PBKDF2_SHA256_XChaCha20;
++	} else if(version >= INNO_VERSION(6, 4, 0)) {
+ 		is.read(password.sha256, 4);
+ 		password.type = crypto::PBKDF2_SHA256_XChaCha20;
+ 	} else if(version >= INNO_VERSION(5, 3, 9)) {
+@@ -390,7 +440,9 @@ void header::load(std::istream & is, const version & version) {
+ 		password.crc32 = util::load<boost::uint32_t>(is);
+ 		password.type = crypto::CRC32;
+ 	}
+-	if(version >= INNO_VERSION(6, 4, 0)) {
++	if(version >= INNO_VERSION(6, 5, 0)) {
++		password_salt.clear(); // now part of the encryption header
++	} else if(version >= INNO_VERSION(6, 4, 0)) {
+ 		password_salt.resize(44); // PBKDF2 salt + iteration count + ChaCha2 base nonce
+ 		is.read(&password_salt[0], std::streamsize(password_salt.length()));
+ 	} else if(version >= INNO_VERSION(4, 2, 2)) {
+@@ -690,7 +742,7 @@ header::flags header::load_flags(std::istream & is, const version & version) {
+ 		flagreader.add(AppendDefaultDirName);
+ 		flagreader.add(AppendDefaultGroupName);
+ 	}
+-	if(version >= INNO_VERSION(4, 2, 2)) {
++	if(version >= INNO_VERSION(4, 2, 2) && version < INNO_VERSION(6, 5, 0)) {
+ 		flagreader.add(EncryptionUsed);
+ 	}
+ 	if(version >= INNO_VERSION(5, 0, 4) && version < INNO_VERSION(5, 6, 1)) {
+@@ -724,11 +776,21 @@ header::flags header::load_flags(std::istream & is, const version & version) {
+ 	if(version >= INNO_VERSION(6, 0, 0)) {
+ 		flagreader.add(AppNameHasConsts);
+ 		flagreader.add(UsePreviousPrivileges);
+-		flagreader.add(WizardResizable);
++		if(version < INNO_VERSION(6, 6, 0)) {
++			flagreader.add(WizardResizable);
++		}
+ 	}
+ 	if(version >= INNO_VERSION(6, 3, 0)) {
+ 		flagreader.add(UninstallLogging);
+ 	}
++	if(version >= INNO_VERSION(6, 6, 0)) {
++		// shWizardModern, shWizardBorderStyled, shWizardKeepAspectRatio and
++		// shWizardLightButtonsUnstyled replace shWizardResizable.
++		flagreader.add(WizardModern);
++		flagreader.add(WizardBorderStyled);
++		flagreader.add(WizardKeepAspectRatio);
++		flagreader.add(WizardLightButtonsUnstyled);
++	}
+ 	
+ 	return flagreader.finalize();
+ }
+@@ -822,6 +884,10 @@ NAMES(setup::header::flags, "Setup Option",
+ 	"app name_has_consts",
+ 	"use_previous_privileges",
+ 	"wizard_resizable",
++	"wizard_modern",
++	"wizard_border_styled",
++	"wizard_keep_aspect_ratio",
++	"wizard_light_buttons_unstyled",
+ 	"uninstall_logging",
+ 	"uninstallable",
+ 	"disable dir page",
+diff --git a/src/setup/header.hpp b/src/setup/header.hpp
+index 78e5b64..5970c83 100644
+--- a/src/setup/header.hpp
++++ b/src/setup/header.hpp
+@@ -101,6 +101,10 @@ struct header {
+ 		AppNameHasConsts,
+ 		UsePreviousPrivileges,
+ 		WizardResizable,
++		WizardModern,
++		WizardBorderStyled,
++		WizardKeepAspectRatio,
++		WizardLightButtonsUnstyled,
+ 		UninstallLogging,
+ 		
+ 		// Obsolete flags
+@@ -167,6 +171,16 @@ struct header {
+ 	std::string changes_associations;
+ 	std::string architectures_allowed_expr;
+ 	std::string architectures_installed_in_64bit_mode_expr;
++	
++	/*!
++	 * Name of the 7-Zip library shipped with the installer (Inno Setup 6.5 and
++	 * later). Non-empty means a 7-Zip DLL follows the wizard images.
++	 */
++	std::string seven_zip_library_name;
++	
++	//! Number of ISSigKey entries (Inno Setup 6.5 and later). These are only
++	//! used to verify downloaded files, so they are skipped rather than stored.
++	boost::uint32_t iss_sig_key_count;
+ 	std::string license_text;
+ 	std::string info_before;
+ 	std::string info_after;
+diff --git a/src/setup/info.cpp b/src/setup/info.cpp
+index d696924..8ce1f48 100644
+--- a/src/setup/info.cpp
++++ b/src/setup/info.cpp
+@@ -111,6 +111,15 @@ void load_wizard_and_decompressor(std::istream & is, const setup::version & vers
+ 		load_wizard_images(is, version, info.wizard_images_small, entries);
+ 	}
+ 	
++	if(version >= INNO_VERSION(6, 6, 0)) {
++		/*
++		 * 6.6 stores a second pair of wizard image sets for the dynamic dark
++		 * theme, always written even when empty (Setup.MainFunc.pas).
++		 */
++		load_wizard_images(is, version, info.wizard_images, entries);
++		load_wizard_images(is, version, info.wizard_images_small, entries);
++	}
++	
+ 	info.decompressor_dll.clear();
+ 	if(header.compression == stream::BZip2
+ 	   || (header.compression == stream::LZMA1 && version == INNO_VERSION(4, 1, 5))
+@@ -123,6 +132,11 @@ void load_wizard_and_decompressor(std::istream & is, const setup::version & vers
+ 		}
+ 	}
+ 	
++	if(!header.seven_zip_library_name.empty()) {
++		// 7-Zip library shipped with the installer - we don't need this
++		util::binary_string::skip(is);
++	}
++	
+ 	info.decrypt_dll.clear();
+ 	if((header.options & header::EncryptionUsed) && version < INNO_VERSION(6, 4, 0)) {
+ 		if(entries & (info::DecryptDll | info::NoSkip)) {
+@@ -153,7 +167,8 @@ void info::try_load(std::istream & is, entry_types entries, util::codepage_id fo
+ 		entries |= Languages;
+ 	}
+ 	
+-	stream::block_reader::pointer reader = stream::block_reader::get(is, version);
++	// Only the first block is preceded by the encryption header (Inno Setup 6.4+).
++	stream::block_reader::pointer reader = stream::block_reader::get(is, version, true);
+ 	
+ 	debug("loading main header");
+ 	header.load(*reader, version);
+@@ -204,6 +219,21 @@ void info::try_load(std::istream & is, entry_types entries, util::codepage_id fo
+ 	load_entries(*reader, entries, header.task_count, tasks, Tasks);
+ 	debug("loading directories");
+ 	load_entries(*reader, entries, header.directory_count, directories, Directories);
++	if(version >= INNO_VERSION(6, 5, 0)) {
++		/*
++		 * ISSigKey entries sit between the directory and file entries
++		 * (Setup.MainFunc.pas). They only carry public keys used to verify
++		 * downloaded files, so they are skipped - but they still have to be
++		 * read to keep the stream in sync.
++		 */
++		debug("skipping " << header.iss_sig_key_count << " ISSigKey entries");
++		for(boost::uint32_t n = 0; n < header.iss_sig_key_count; n++) {
++			util::binary_string::skip(*reader); // PublicX
++			util::binary_string::skip(*reader); // PublicY
++			util::binary_string::skip(*reader); // RuntimeID
++		}
++	}
++	
+ 	debug("loading files");
+ 	load_entries(*reader, entries, header.file_count, files, Files);
+ 	debug("loading icons");
+diff --git a/src/setup/language.cpp b/src/setup/language.cpp
+index 6b40813..4400866 100644
+--- a/src/setup/language.cpp
++++ b/src/setup/language.cpp
+@@ -140,9 +140,17 @@ void language_entry::load(std::istream & is, const info & i) {
+ 	}
+ 	
+ 	is >> util::binary_string(dialog_font);
+-	is >> util::binary_string(title_font);
++	if(i.version < INNO_VERSION(6, 6, 0)) {
++		is >> util::binary_string(title_font);
++	} else {
++		title_font.clear();
++	}
+ 	is >> util::binary_string(welcome_font);
+-	is >> util::binary_string(copyright_font);
++	if(i.version < INNO_VERSION(6, 6, 0)) {
++		is >> util::binary_string(copyright_font);
++	} else {
++		copyright_font.clear();
++	}
+ 	
+ 	if(i.version >= INNO_VERSION(4, 0, 0)) {
+ 		is >> util::binary_string(data);
+@@ -156,7 +164,12 @@ void language_entry::load(std::istream & is, const info & i) {
+ 		license_text.clear(), info_before.clear(), info_after.clear();
+ 	}
+ 	
+-	language_id = util::load<boost::uint32_t>(is);
++	if(i.version >= INNO_VERSION(6, 6, 0)) {
++		// LanguageID narrowed from Cardinal to Word (Shared.Struct.pas)
++		language_id = util::load<boost::uint16_t>(is);
++	} else {
++		language_id = util::load<boost::uint32_t>(is);
++	}
+ 	
+ 	if(i.version < INNO_VERSION(4, 2, 2)) {
+ 		codepage = default_codepage_for_language(language_id);
+@@ -186,9 +199,19 @@ void language_entry::load(std::istream & is, const info & i) {
+ 		dialog_font_standard_height = 0;
+ 	}
+ 	
+-	title_font_size = util::load<boost::uint32_t>(is);
+-	welcome_font_size = util::load<boost::uint32_t>(is);
+-	copyright_font_size = util::load<boost::uint32_t>(is);
++	if(i.version >= INNO_VERSION(6, 6, 0)) {
++		// DialogFontBaseScaleHeight / DialogFontBaseScaleWidth replace the
++		// title and copyright font sizes.
++		(void)util::load<boost::uint32_t>(is);
++		(void)util::load<boost::uint32_t>(is);
++		title_font_size = 0;
++		welcome_font_size = util::load<boost::uint32_t>(is);
++		copyright_font_size = 0;
++	} else {
++		title_font_size = util::load<boost::uint32_t>(is);
++		welcome_font_size = util::load<boost::uint32_t>(is);
++		copyright_font_size = util::load<boost::uint32_t>(is);
++	}
+ 	
+ 	if(i.version == INNO_VERSION_EXT(5, 5, 7, 1)) {
+ 		util::load<boost::uint32_t>(is); // always 8 or 9?
+diff --git a/src/setup/version.cpp b/src/setup/version.cpp
+index 7f68af2..8078e19 100644
+--- a/src/setup/version.cpp
++++ b/src/setup/version.cpp
+@@ -186,6 +186,11 @@ const known_version versions[] = {
+ 	{ "Inno Setup Setup Data (6.3.0)",                      INNO_VERSION_EXT(6, 3,  0, 0), version::Unicode },
+ 	{ "Inno Setup Setup Data (6.4.0)",     /* prerelease */ INNO_VERSION_EXT(6, 4,  0, 0), version::Unicode },
+ 	{ "Inno Setup Setup Data (6.4.0.1)",        /* 6.4.0 */ INNO_VERSION_EXT(6, 4,  0, 1), version::Unicode },
++	{ "Inno Setup Setup Data (6.4.2)",                      INNO_VERSION_EXT(6, 4,  2, 0), version::Unicode },
++	{ "Inno Setup Setup Data (6.4.3)",                      INNO_VERSION_EXT(6, 4,  3, 0), version::Unicode },
++	{ "Inno Setup Setup Data (6.5.0)",                      INNO_VERSION_EXT(6, 5,  0, 0), version::Unicode },
++	{ "Inno Setup Setup Data (6.6.0)",                      INNO_VERSION_EXT(6, 6,  0, 0), version::Unicode },
++	{ "Inno Setup Setup Data (6.6.1)",                      INNO_VERSION_EXT(6, 6,  1, 0), version::Unicode },
+ };
+ 
+ } // anonymous namespace
+diff --git a/src/stream/block.cpp b/src/stream/block.cpp
+index 2a90c20..5af63c2 100644
+--- a/src/stream/block.cpp
++++ b/src/stream/block.cpp
+@@ -150,10 +150,60 @@ NAMES(stream::block_compression, "Compression",
+ 
+ namespace stream {
+ 
+-block_reader::pointer block_reader::get(std::istream & base, const setup::version & version) {
++block_reader::pointer block_reader::get(std::istream & base, const setup::version & version,
++                                       bool has_encryption_header) {
+ 	
+ 	USE_ENUM_NAMES(block_compression)
+ 	
++	if(has_encryption_header && version >= INNO_VERSION(6, 5, 0)) {
++		
++		/*
++		 * Inno Setup 6.5 inserts a TSetupEncryptionHeader before the compressed block,
++		 * preceded by its own CRC32 (Setup.MainFunc.pas, and Shared.Struct.pas for the
++		 * record itself):
++		 *
++		 *   uint8  EncryptionUse   (0 = none, 1 = files, 2 = full)
++		 *   uint8  KDFSalt[16]
++		 *   int32  KDFIterations
++		 *   struct BaseNonce { int64 RandomXorStartOffset; int32 RandomXorFirstSlice;
++		 *                      int32 RemainingRandom[3]; }
++		 *   int32  PasswordTest
++		 *
++		 * That is 49 bytes packed. innoextract cannot decrypt, so the contents are only
++		 * inspected far enough to report encrypted installers clearly; the block itself
++		 * follows immediately afterwards and is unchanged.
++		 */
++		
++		boost::uint32_t expected_encryption_checksum = util::load<boost::uint32_t>(base);
++		crypto::crc32 encryption_checksum;
++		encryption_checksum.init();
++		
++		boost::uint8_t encryption_use = encryption_checksum.load<boost::uint8_t>(base);
++		for(size_t i = 0; i < 16; i++) {
++			(void)encryption_checksum.load<boost::uint8_t>(base); // KDFSalt
++		}
++		(void)encryption_checksum.load<boost::uint32_t>(base); // KDFIterations
++		(void)encryption_checksum.load<boost::uint64_t>(base); // BaseNonce.RandomXorStartOffset
++		(void)encryption_checksum.load<boost::uint32_t>(base); // BaseNonce.RandomXorFirstSlice
++		for(size_t i = 0; i < 3; i++) {
++			(void)encryption_checksum.load<boost::uint32_t>(base); // BaseNonce.RemainingRandom
++		}
++		(void)encryption_checksum.load<boost::uint32_t>(base); // PasswordTest
++		
++		if(base.fail()) {
++			throw block_error("could not read encryption header");
++		}
++		
++		if(encryption_checksum.finalize() != expected_encryption_checksum) {
++			throw block_error("encryption header CRC32 mismatch");
++		}
++		
++		if(encryption_use == 2 /* euFull */) {
++			throw block_error("encrypted setup headers are not supported");
++		}
++		
++	}
++	
+ 	boost::uint32_t expected_checksum = util::load<boost::uint32_t>(base);
+ 	crypto::crc32 actual_checksum;
+ 	actual_checksum.init();
+diff --git a/src/stream/block.hpp b/src/stream/block.hpp
+index c97f0d4..bd968d8 100644
+--- a/src/stream/block.hpp
++++ b/src/stream/block.hpp
+@@ -78,7 +78,8 @@ public:
+ 	 *         Reading from this stream may throw a \ref block_error if a block checksum
+ 	 *         was invalid.
+ 	 */
+-	static pointer get(std::istream & base, const setup::version & version);
++	static pointer get(std::istream & base, const setup::version & version,
++	                   bool has_encryption_header = false);
+ 	
+ };
+ 

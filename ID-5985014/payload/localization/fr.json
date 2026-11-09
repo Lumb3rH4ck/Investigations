@@ -1,0 +1,12 @@
+﻿{
+  "yes": "Oui",
+  "no": "Non",
+  "accept": "Accepter et Installer",
+  "cancel": "Annuler",
+  "exit_dialog": "L’installation n’est pas terminée. Si vous quittez maintenant, le programme ne sera pas installé. Quitter l’installation?",
+  "installation_caption": "Installation...",
+  "stub_caption": "Préparation de l’application %s...",
+  "stub_caption_no_profile": "Préparation de Shift Browser...",
+  "window_title": "Installation",
+  "shift-manuals": "Manuels"
+  }
