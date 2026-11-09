@@ -1,6 +1,6 @@
 # Malware Analysis Report — Shift - PDF_xyvckh.exe (Shift Browser web installer)
 
-**Analyst:** Lumb3rH4ck (opencode sandboxed RE session)
+**Analyst:** Rhys Wilson
 **Date:** 2026-11-09
 **Sample:** `ID-5985014.zip` → `Shift - PDF_xyvckh.exe`
 **Verdict:** **LEGITIMATE — official Shift Browser v139.1.3 web-installer stub (Shift Technologies, Inc.)**

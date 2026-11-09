@@ -1,7 +1,7 @@
 # Investigation: ID-5966877 — balloons.exe
 
 **Date:** 2026-10-30  
-**Analyst:** Lumb3rH4ck  
+**Analyst:** Rhys Wilson
 **Classification:** ⚠️ HIGHLY SUSPICIOUS  
 **Verdict:** Do NOT execute on host system. Dropper/RAT/Credential stealer indicators.
 

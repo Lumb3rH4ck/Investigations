@@ -1,6 +1,6 @@
 # Malware Analysis Report — LuminaRead_1.3994.39.exe (CLOUDHAZE)
 
-**Analyst:** Lumb3rH4ck (opencode sandboxed RE session)
+**Analyst:** Rhys Wilson
 **Date:** 2026-11-05
 **Sample:** `ID-5980443.zip` → `LuminaRead_1.3994.39.exe`
 **Verdict:** **MALICIOUS — CLOUDHAZE backdoor (Mandiant: CLOUDHAZE; aka QuartzLine / "zenith")**

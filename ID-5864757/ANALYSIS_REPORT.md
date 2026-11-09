@@ -1,7 +1,7 @@
 # Malware Analysis Report — ID-5864757
 
 **Classification:** Legitimate Software Installer  
-**Analyst:** lumb3rh4ck  
+**Analyst:** Rhys Wilson
 **Date:** 2026-09-10  
 **Sample:** `txtconverters (2).exe`
 
