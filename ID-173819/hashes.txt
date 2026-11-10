@@ -1,0 +1,17 @@
+# ID-173819 sample hashes
+#
+# Installer: PDFConvertSetup_809727.exe (from ID-173819.zip, password Sandboxing2026)
+77598f237f58af01518e5b6df77537de9b79208794bbe0645685fd681765d772  PDFConvertSetup_809727.exe (SHA256)
+d78d5fb1e60bd5348ae87ff7017a5d58  PDFConvertSetup_809727.exe (MD5)
+3318cc117ff7fd6ae9e4c585974b394f4d98af54  PDFConvertSetup_809727.exe (SHA1)
+2ce78cecf7bf100dadb40be5938e14692843945f134fe5cf0e111a8abdc3ce3f  PE Authenticode digest (SHA256, matches signature)
+#
+# Dropped payload: NimbusPDF.exe (.NET 64-bit WPF, "ClearPage")
+c9fdb2c6b570653d3739419afa5b106e662918c2d48f5fd45157f5a5fa5b9b12  NimbusPDF.exe (SHA256)
+87c5ee80183d5fa2f5208e870aceb7c9  NimbusPDF.exe (MD5)
+9f3dc0350f06d85a8b02815cfa00397e7656a4e6763eb42c9776c781203185d8  clearpage-icon.ico (SHA256)
+#
+# Obfuscation / crypto material
+f4a2c8a1f8c5389f524e844d6dfd8405  string-decoder key / config (16 bytes)
+8c8d7261b558cd5a                  string-decoder key (8 bytes)
+3c0648b02e05203ea476029da4dd8dcb76028250d46ed9e6c06d77b4dea8bd90  SHA-256 (config)

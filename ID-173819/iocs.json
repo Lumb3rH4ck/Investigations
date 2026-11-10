@@ -1,0 +1,78 @@
+{
+  "case": "ID-173819",
+  "analysis_date": "2026-11-10",
+  "sample": {
+    "filename": "PDFConvertSetup_809727.exe",
+    "sha256": "77598f237f58af01518e5b6df77537de9b79208794bbe0645685fd681765d772",
+    "md5": "d78d5fb1e60bd5348ae87ff7017a5d58",
+    "sha1": "3318cc117ff7fd6ae9e4c585974b394f4d98af54",
+    "size": 16018768,
+    "type": "PE32 GUI Intel 80386",
+    "compile_time": "2026-07-23T09:51:30Z",
+    "dropped_payload": {
+      "filename": "NimbusPDF.exe",
+      "sha256": "c9fdb2c6b570653d3739419afa5b106e662918c2d48f5fd45157f5a5fa5b9b12",
+      "md5": "87c5ee80183d5fa2f5208e870aceb7c9",
+      "size": 6952960,
+      "type": "PE32+ x86-64 .NET WPF (ClearPage namespace)"
+    },
+    "command_line": ["/install", "/uninstall"],
+    "signature": {
+      "signer": "Alternate Financial, LLC",
+      "email": "greg@alternatefintech.com",
+      "serial": "2022-001197822",
+      "issuer": "GlobalSign GCC R45 EV CodeSigning CA 2020",
+      "type": "EV Code Signing",
+      "status": "signed (PKCS#7 rev 0x0200)"
+    }
+  },
+  "network": {
+    "domains": ["nimbuspdfstore.com"],
+    "urls": [],
+    "protocols": ["HTTPS", "HTTP/1.1", "HTTP/2"],
+    "methods": ["GET", "POST", "OPTIONS", "PUT", "DELETE", "HEAD", "TRACE", "CONNECT", "PATCH"]
+  },
+  "mutexes": [
+    "nimbuspdf-payload.session",
+    "nimbuspdf-payload.launched",
+    "docustudio-payload.session",
+    "docustudio-payload.launched",
+    "Local\\NimbusPDF-Setup",
+    "Local\\RustBacktraceMutex00000000"
+  ],
+  "registry": [
+    "Software\\NimbusPDF",
+    "Software\\ClearPage",
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\NimbusPDF",
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ClearPage",
+    "Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+    "Software\\Classes\\ClearPage.pdf",
+    "Software\\Classes\\.pdf\\OpenWithProgids",
+    "Software\\RegisteredApplications",
+    "Software\\Classes\\*\\Capabilities\\FileAssociations"
+  ],
+  "files": [
+    "NimbusPDF.exe",
+    "ClearPage.exe",
+    "NimbusPDF-Setup.exe",
+    "clearpage-icon.ico"
+  ],
+  "paths": [
+    "%LOCALAPPDATA%\\Programs\\NimbusPDF",
+    "C:\\Users\\admin\\Desktop\\rust_wrapper_scb\\installer"
+  ],
+  "crypto_material": [
+    "f4a2c8a1f8c5389f524e844d6dfd8405",
+    "8c8d7261b558cd5a",
+    "3c0648b02e05203ea476029da4dd8dcb76028250d46ed9e6c06d77b4dea8bd90"
+  ],
+  "tools": [
+    "rustc stable-x86_64-pc-windows-msvc",
+    "target i686-pc-windows-msvc",
+    "crate clearpage-setup",
+    "project rust_wrapper_scb",
+    "Slint/Tauri muda GUI",
+    "reqwest/hyper/rustls/tokio"
+  ],
+  "verdict": "MALICIOUS (trojanized fake PDF installer / downloader with remote payload delivery and persistence)"
+}
