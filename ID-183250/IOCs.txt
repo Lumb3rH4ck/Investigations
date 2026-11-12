@@ -1,0 +1,91 @@
+# UFile installer IOCs
+# Sample: ufile.exe (from ID-183250.zip, password Sandboxing2026)
+# SHA256: 6bb5a82d9acd6d846d5ebd928ec8eec8c0ac67cf7a76d3c6b0e225169fd382e3
+# MD5:    3f8c1e6ce632f46eb4f47454a98526a5
+# SHA1:   dddc244162683442b667b33f2e65f75675dd74ac
+# Verdict: MALICIOUS (EV-signed .NET dropper / downloader; FAIRLIE LIMITED cert)
+
+## Sample hashes
+6bb5a82d9acd6d846d5ebd928ec8eec8c0ac67cf7a76d3c6b0e225169fd382e3  ufile.exe / UFileSetup.exe (SHA256)
+3f8c1e6ce632f46eb4f47454a98526a5  ufile.exe / UFileSetup.exe (MD5)
+dddc244162683442b667b33f2e65f75675dd74ac  ufile.exe / UFileSetup.exe (SHA1)
+e45587dd86c980495bc971f069ac91daab69e34335acfa39bbec49a6ebe986edc78df35f6b59217bcc73be3c1a009c524b206e3a648d2eaeb3a645360ee62b35  ufile.exe (SHA512)
+
+## Captured payload hashes (live POST https://alyclick.com/get_u, 2026-11-12)
+134d4217051d9e98e63604d26f934500054fb55c60c82a98a6c343030665e2f1  UFile.zip (SHA256)
+b7e6d1bcd44f55c6f4586e2ccc02e846b53fae54cffc31e389a71db0a8aa0231  UFile.exe v21.3.0.5 (SHA256)
+4edeae4855a0a37772f0d2b880815377  UFile.exe v21.3.0.5 (MD5)
+a2041e48000177411bc3c0397de637a8bc049601c081f3cf72a4a93747ab67eb  UFileUninstaller.exe (SHA256)
+44dff346939dd3b65b09333f1819703  UFileUninstaller.exe (MD5)
+
+## Related payload hashes (public analysis, 2026-10-30)
+6a915d4c09939d9c2e872e84a0ebeaf3fd753af5029e2474b28065f61b2c1aaf  UFile.exe (earlier build, contains DeployService)
+afcc8b57df4cdc503646fc593688be57e180961592381f9248f8d2d77183a42bc  AutomationPref recovered stage (SHA256)
+3290292ab1a2f512a1938fdfbb710720  AutomationPref recovered stage (MD5)
+
+## Network domains / URLs (first-stage installer)
+https://alyclick.com/get_u
+https://alyclick.com/u_flow_done
+alyclick.com
+
+## Network domains / URLs (second-stage infrastructure, from public analysis)
+api.catchasail.com/u_session_grant
+api.catchasail.com/u_bundle_acquire
+api.catchasail.com/u_status_digest
+catchasail.com/u_install_start
+catchasail.com/u_partner_cfg
+catchasail.com/u_ext
+catchasail.com/u_close_ping2
+trai.eepsearch.com
+quickbrowse.co/search/?chnm3=w64cjbu7
+goyoufile.com
+homemade-gifts-made-easy.com
+
+## Registry keys
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\UFile
+  DisplayName, UninstallString, InstallLocation, Publisher, DisplayVersion, DisplayIcon, NoModify=1, NoRepair=1
+
+## Files / paths
+%LOCALAPPDATA%\Programs\UFile\
+%LOCALAPPDATA%\Programs\UFile\UFile.exe
+%LOCALAPPDATA%\Programs\UFile\UFileUninstaller.exe
+%USERPROFILE%\Desktop\UFile.lnk
+%APPDATA%\Microsoft\Windows\Start Menu\Programs\UFile.lnk
+UFileSetup.exe
+ufile.exe
+UFile.exe
+UFileUninstaller.exe
+UFile.lnk
+Tools\qpdf\qpdf30.dll
+Tools\qpdf\msvcp140.dll
+Tools\qpdf\vcruntime140.dll
+youfiles_id.txt
+youfiles_backup
+U_File
+
+## Processes
+UFile (GetProcessesByName check)
+UFile.exe (launched via Process.Start)
+
+## Command line
+/vid=<id>
+/ch=<channel>
+/so=<source>
+
+## Certificate
+Subject:    FAIRLIE LIMITED (CN=FAIRLIE LIMITED, O=FAIRLIE LIMITED, E=myro@fairlie.xyz)
+Address:    31 Oikonomou Konstantinou, Strovolos, Nicosia, Cyprus
+Org serial: HE424676 (jurisdiction CY)
+Issuer:     GlobalSign GCC R45 EV CodeSigning CA 2020
+Serial:     641DA2847A22364E02640605
+SHA1:       B486151303A89351C7AD52775C7A6D2B2E505E41
+SHA256:     927C81B5DE528F8FE8EB60B285D4F831BCE7ED295208BC42280F95033B82C9A9
+Validity:   2026-06-08 09:53:49 UTC - 2027-06-09 09:53:49 UTC
+Signed:     2026-08-20 13:37:00 UTC
+Status:     Valid (abused EV cert; report to GlobalSign / Microsoft)
+
+## YARA rules
+UFile_Installer_Generic
+  alyclick.com, /get_u, /u_flow_done, UFile, Uninstall\UFile key
+FAIRLIE_EV_Cert_Indicators
+  FAIRLIE LIMITED, myro@fairlie.xyz

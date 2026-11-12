@@ -1,0 +1,100 @@
+{
+  "case": "ID-183250",
+  "analysis_date": "2026-11-12",
+  "sample": {
+    "filename": "ufile.exe",
+    "internal_name": "UFileSetup.exe",
+    "size": 1137520,
+    "sha256": "6bb5a82d9acd6d846d5ebd928ec8eec8c0ac67cf7a76d3c6b0e225169fd382e3",
+    "md5": "3f8c1e6ce632f46eb4f47454a98526a5",
+    "sha1": "dddc244162683442b667b33f2e65f75675dd74ac",
+    "sha512": "e45587dd86c980495bc971f069ac91daab69e34335acfa39bbec49a6ebe986edc78df35f6b59217bcc73be3c1a009c524b206e3a648d2eaeb3a645360ee62b35",
+    "type": "PE32 .NET CLR 4.0 WPF (x86)",
+    "compile_time": "2026-08-20T13:33:27Z",
+    "signing_time": "2026-08-20T13:37:00Z",
+    "signature": {
+      "signer": "FAIRLIE LIMITED",
+      "email": "myro@fairlie.xyz",
+      "serial": "641DA2847A22364E02640605",
+      "issuer": "GlobalSign GCC R45 EV CodeSigning CA 2020",
+      "type": "EV Code Signing",
+      "status": "valid (abused EV cert)"
+    }
+  },
+  "captured_payload": {
+    "zip": "UFile.zip",
+    "zip_sha256": "134d4217051d9e98e63604d26f934500054fb55c60c82a98a6c343030665e2f1",
+    "zip_size": 4305945,
+    "ufile_exe_sha256": "b7e6d1bcd44f55c6f4586e2ccc02e846b53fae54cffc31e389a71db0a8aa0231",
+    "ufile_exe_md5": "4edeae4855a0a37772f0d2b880815377",
+    "ufile_exe_version": "21.3.0.5",
+    "ufile_uninstaller_sha256": "a2041e48000177411bc3c0397de637a8bc049601c081f3cf72a4a93747ab67eb"
+  },
+  "network": {
+    "domains": [
+      "alyclick.com",
+      "api.catchasail.com",
+      "catchasail.com",
+      "trai.eepsearch.com",
+      "quickbrowse.co",
+      "goyoufile.com",
+      "homemade-gifts-made-easy.com"
+    ],
+    "urls": [
+      "https://alyclick.com/get_u",
+      "https://alyclick.com/u_flow_done",
+      "api.catchasail.com/u_session_grant",
+      "api.catchasail.com/u_bundle_acquire",
+      "api.catchasail.com/u_status_digest",
+      "catchasail.com/u_install_start",
+      "catchasail.com/u_partner_cfg",
+      "catchasail.com/u_ext",
+      "catchasail.com/u_close_ping2",
+      "quickbrowse.co/search/?chnm3=w64cjbu7"
+    ],
+    "protocols": ["HTTPS"],
+    "methods": ["POST"],
+    "json_fields": ["you_id", "build_os", "file_version", "rerun", "your_power", "closed_by_user", "error_occurred", "error_msg"]
+  },
+  "registry": [
+    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\UFile"
+  ],
+  "files": [
+    "UFileSetup.exe",
+    "ufile.exe",
+    "UFile.exe",
+    "UFileUninstaller.exe",
+    "UFile.lnk",
+    "qpdf30.dll",
+    "youfiles_id.txt",
+    "youfiles_backup",
+    "U_File"
+  ],
+  "paths": [
+    "%LOCALAPPDATA%\\Programs\\UFile",
+    "%USERPROFILE%\\Desktop\\UFile.lnk",
+    "%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\UFile.lnk"
+  ],
+  "processes": [
+    "UFile",
+    "UFile.exe"
+  ],
+  "command_line": ["/vid=", "/ch=", "/so="],
+  "certificates": [
+    {
+      "subject": "FAIRLIE LIMITED",
+      "email": "myro@fairlie.xyz",
+      "serial": "641DA2847A22364E02640605",
+      "sha1": "B486151303A89351C7AD52775C7A6D2B2E505E41",
+      "sha256": "927C81B5DE528F8FE8EB60B285D4F831BCE7ED295208BC42280F95033B82C9A9",
+      "issuer": "GlobalSign GCC R45 EV CodeSigning CA 2020",
+      "validity": "2026-06-08T09:53:49Z/2027-06-09T09:53:49Z"
+    }
+  ],
+  "related_hashes": {
+    "installed_ufile_exe_sha256": "6a915d4c09939d9c2e872e84a0ebeaf3fd753af5029e2474b28065f61b2c1aaf",
+    "stage_automationpref_sha256": "afcc8b57df4cdc503646fc593688be57e180961592381f9248f8d2d77183a42bc",
+    "stage_automationpref_md5": "3290292ab1a2f512a1938fdfbb710720"
+  },
+  "verdict": "MALICIOUS (EV-signed .NET dropper / downloader for server-controlled payload)"
+}
